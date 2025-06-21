@@ -1,6 +1,9 @@
+import 'package:chat_keluarga/bloc/auth/auth_bloc.dart';
+import 'package:chat_keluarga/views/home_view.dart';
 import 'package:chat_keluarga/views/login_view.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -10,6 +13,9 @@ class RegisterView extends StatefulWidget {
 }
 
 class _RegisterViewState extends State<RegisterView> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   bool isVisiblePassword = false;
   bool isVisibleConfirmPassword = false;
 
@@ -34,6 +40,7 @@ class _RegisterViewState extends State<RegisterView> {
         children: [
           SizedBox(height: 8),
           TextFormField(
+            controller: emailController,
             decoration: InputDecoration(
               labelText: "Email",
               border: OutlineInputBorder(),
@@ -42,6 +49,7 @@ class _RegisterViewState extends State<RegisterView> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: TextFormField(
+              controller: passwordController,
               obscureText: isVisiblePassword,
               obscuringCharacter: "*",
               decoration: InputDecoration(
@@ -59,6 +67,7 @@ class _RegisterViewState extends State<RegisterView> {
           Padding(
             padding: const EdgeInsets.only(bottom: 20),
             child: TextFormField(
+              controller: confirmPasswordController,
               obscureText: isVisibleConfirmPassword,
               obscuringCharacter: "*",
               decoration: InputDecoration(
@@ -75,7 +84,38 @@ class _RegisterViewState extends State<RegisterView> {
               ),
             ),
           ),
-          ElevatedButton(onPressed: () {}, child: Text("Register")),
+          ElevatedButton(
+            onPressed: () {
+              if (emailController.text.isNotEmpty &&
+                  passwordController.text.isNotEmpty &&
+                  confirmPasswordController.text.isNotEmpty &&
+                  passwordController.text == confirmPasswordController.text) {
+                context.read<AuthBloc>().add(
+                  RegisterEvent(
+                    email: emailController.text.trim(),
+                    password: passwordController.text.trim(),
+                  ),
+                );
+              }
+            },
+            child: BlocConsumer<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is AuthSuccess) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeView()),
+                    (route) => false,
+                  );
+                }
+              },
+              builder: (context, state) {
+                if (state is AuthLoading) {
+                  return CircularProgressIndicator();
+                }
+                return Text("Register");
+              },
+            ),
+          ),
           SizedBox(height: 12),
 
           Padding(

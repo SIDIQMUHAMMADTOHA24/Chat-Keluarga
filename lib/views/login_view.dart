@@ -1,7 +1,9 @@
+import 'package:chat_keluarga/bloc/auth/auth_bloc.dart';
 import 'package:chat_keluarga/views/home_view.dart';
 import 'package:chat_keluarga/views/register_view.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -11,6 +13,8 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   bool isVisible = false;
 
   void onVisible() {
@@ -28,6 +32,7 @@ class _LoginViewState extends State<LoginView> {
         children: [
           SizedBox(height: 8),
           TextFormField(
+            controller: emailController,
             decoration: InputDecoration(
               labelText: "Email",
               border: OutlineInputBorder(),
@@ -36,6 +41,7 @@ class _LoginViewState extends State<LoginView> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: TextFormField(
+              controller: passwordController,
               obscureText: isVisible,
               obscuringCharacter: "*",
               decoration: InputDecoration(
@@ -52,12 +58,33 @@ class _LoginViewState extends State<LoginView> {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => HomeView()),
-              );
+              if (emailController.text.isNotEmpty &&
+                  passwordController.text.isNotEmpty) {
+                context.read<AuthBloc>().add(
+                  LoginEvent(
+                    email: emailController.text.trim(),
+                    password: passwordController.text.trim(),
+                  ),
+                );
+              }
             },
-            child: Text("Login"),
+            child: BlocConsumer<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is AuthSuccess) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeView()),
+                    (route) => false,
+                  );
+                }
+              },
+              builder: (context, state) {
+                if (state is AuthLoading) {
+                  return CircularProgressIndicator();
+                }
+                return Text("Login");
+              },
+            ),
           ),
           SizedBox(height: 12),
 

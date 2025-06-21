@@ -1,12 +1,10 @@
+import 'package:chat_keluarga/utils/storage_util.dart';
 import 'package:chat_keluarga/views/chat_view.dart';
+import 'package:chat_keluarga/views/login_view.dart';
 import 'package:flutter/material.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
-
-  //Nama
-  //Isi pesan
-  //Terakhir chat
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +25,18 @@ class HomeView extends StatelessWidget {
           },
           trailing: Text("12:30"),
         ),
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await StorageUtils.deleteToken();
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => LoginView()),
+            (route) => false,
+          );
+        },
+        child: Icon(Icons.logout),
       ),
     );
   }

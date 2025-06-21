@@ -6,9 +6,6 @@ class ChatView extends StatelessWidget {
 
   final String receiver;
 
-  //Chat penerima dan pengirim
-  //isSender true / false
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
